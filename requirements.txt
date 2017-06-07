@@ -1,0 +1,5 @@
+Fabric==1.13.1
+pandas==0.18.1
+Shapely==1.5.16
+SQLAlchemy==1.0.13
+mercantile==0.10.0
