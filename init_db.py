@@ -26,12 +26,17 @@ def file2bounds(row):
 
 	bounds = mercantile.bounds(x, y, z)
 
-	#[west, south, east, north]
-	return list(bounds)
+	result = list(bounds)
+	result.append(x)
+	result.append(y)
+	result.append(z)
+
+	#[west, south, east, north, x, y, z]
+	return result
 
 bounds = df.apply(file2bounds, axis=1)
 bounds = pandas.DataFrame(list(bounds.values))
-bounds.columns = ['west', 'south', 'east', 'north']
+bounds.columns = ['west', 'south', 'east', 'north', 'x', 'y', 'z']
 
 df = pandas.concat([df, bounds], axis=1)
 
