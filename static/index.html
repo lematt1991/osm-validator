@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OSM Validator</title>
+  <meta charset="utf-8" />
+  <link 
+    rel="stylesheet" 
+    href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"
+  />
+</head>
+<body>
+  <div id="map" style="position: absolute; top: 0; bottom: 0; left:0; right:0"></div>
+
+  <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+
+  <script>
+    var map = L.map('map', {zoomControl : false}).setView([20.6103516, -74.8388672], 18);
+    const tile_layer = 'http://localhost:8080/tile/{z}/{x}/{y}'
+
+    L.tileLayer(tile_layer, {maxZoom: 18, tms : true}).addTo(map);
+  </script>
+</body>
+</html>
