@@ -3,21 +3,58 @@
 <head>
   <title>OSM Validator</title>
   <meta charset="utf-8" />
-  <link 
-    rel="stylesheet" 
-    href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+   integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
+   crossorigin=""/>
 </head>
 <body>
   <div id="map" style="position: absolute; top: 0; bottom: 0; left:0; right:0"></div>
 
-  <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
+   integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+   crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <script>
-    var map = L.map('map', {zoomControl : false}).setView([20.6103516, -74.8388672], 18);
+    var map = L.map('map', {zoomControl : false, scrollWheelZoom : false})
+
+    var added = {};
+
+    function getFeatures(){
+      console.log('test')
+      const sw = map.getBounds().getSouthWest()
+      const ne = map.getBounds().getNorthEast()
+
+      $.get(`/polygons/${sw.lat}/${sw.lng}/${ne.lat}/${ne.lng}`, function(data){
+        var newFeatures = [];
+        for(var i = 0; i < data.length; i++){
+          if(added[data[i].osm_id] == null){
+            added[data[i].osm_id] = true;
+            newFeatures.push(data[i].geometry)
+          }
+        }
+        L.geoJSON(newFeatures).addTo(map);
+      })
+    }
+
+
+    map.on('load', function(){
+      getFeatures()
+    })
+
+    map.on('moveend', function(){
+      getFeatures()
+    })
+
+    map.setView([18.4413619, -72.850796], 18);
+
+
+
     const tile_layer = 'http://localhost:8080/tile/{z}/{x}/{y}'
 
     L.tileLayer(tile_layer, {maxZoom: 18, tms : true}).addTo(map);
+
+
   </script>
 </body>
 </html>
