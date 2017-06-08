@@ -1,18 +1,21 @@
 import React from 'react'
+import L from 'leaflet'
 import 'leaflet-editable/src/Leaflet.Editable'
 import { Map, TileLayer, FeatureGroup, Circle } from 'react-leaflet'
 import { EditControl } from "react-leaflet-draw"
-import L from 'leaflet'
+import {connect} from 'react-redux'
+import * as MapActions from '../actions/MapActions';
 
 class Home extends React.Component{
-	componentDidMount(){
-		const position = [51.505, -0.09];
-		this.map = L.map('map', {editable : true})
-		const tileLayer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')
-		tileLayer.addTo(this.map);
-		this.map.setView(position, 13)
 
-		L.EditControl = L.Control.extend({
+  submit = () => {
+    console.log('Done editing...')
+  }
+
+  componentDidMount(){
+    const map = this.refs.map.leafletElement
+
+    L.EditControl = L.Control.extend({
       options: {
         position: 'topleft',
         callback: null,
@@ -32,32 +35,52 @@ class Home extends React.Component{
         return container;
       }
     })
-		L.NewPolygonControl = L.EditControl.extend({
+    L.NewPolygonControl = L.EditControl.extend({
       options: {
         position: 'topleft',
-        callback: this.map.editTools.startPolygon,
+        callback: map.editTools.startPolygon,
         kind: 'polygon',
-        html: '▰'
+        html: '⬠'
       }
     });
 
-		this.map.addControl(new L.NewPolygonControl())
-	}
+    map.addControl(new L.NewPolygonControl())
 
-	render(){
-		
-		return(
-			<div id='map' style={styles.container}>
+    map.on('editable:drawing:end', e => {
+      const polygon = e.layer.toGeoJSON()
+      this.props.dispatch(MapActions.addFeature(polygon));
+    })
+  }
 
-			</div>
-
-		)
-	}
+  render(){
+    return(
+      <Map editable={true} ref='map' style={styles.container} center={[51, -.09]} zoom={13}> 
+        <TileLayer url='http://{s}.tile.osm.org/{z}/{x}/{y}.png' />
+        <button style={styles.button} onClick={this.submit}>
+          Done Editing
+        </button>
+      </Map>  
+    )
+  }
 }
 
-export default Home;
+const mapStateToProps = state => state
+const mapDispatchToProps = dispatch => ({dispatch})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
 
 const styles = {
+  button : {
+    zIndex : 50000,
+    position : 'absolute',
+    top : 20,
+    right : 20,
+    height : 40,
+    width : 120,
+    borderRadius : 10,
+    backgroundColor : '#337AB7',
+    color : 'white'
+  },
 	container : {
 		position : 'absolute',
 		top : 0,
@@ -66,3 +89,17 @@ const styles = {
 		right : 0
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
